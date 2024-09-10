@@ -36,10 +36,8 @@ class Player:
     #Set hit, sink, over variables
     def add_Shoot(self, board, coord):
 	
-    #Do not implement status.
-    #Realized that as long as the object variables are set, there is no need
-    #to return them for internal use. Just access and set variables directly.
     def status(self):
+	    return self.__hit, self.__sink, self.__over
 	
     #Returns both player's boards
     #Remember to define these in init
