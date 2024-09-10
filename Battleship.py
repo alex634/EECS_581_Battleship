@@ -19,21 +19,23 @@ class Player:
 		
     #Sets a coordinate on the board to a specific value
     #Point must be valid, no parameter checking should occur here
-    def add_Point(self, board, coord, value):
+    def __add_Point(self, board, coord, value):
 
     #Returns the value at a specific point on the board.
     #Point must be valid, no parameter checking should occur here
-    def get_Point(self, board, coord):
+    def __get_Point(self, board, coord):
     	
     #Steps:
     #Make sure all locations the ship will exist along are valid using BOB
     #Make sure the ship doesn't overlap with any other ship
+    #If this fails, raise an exception
     def add_Ship(self, board, coord, size, downright):
 
     #Steps:
     #Make sure point is a valid point using BOB
     #Mark location on board
     #Set hit, sink, over variables
+    #If this fails, raise an exception
     def add_Shoot(self, board, coord):
 	
     def status(self):
