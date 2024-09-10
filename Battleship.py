@@ -37,7 +37,7 @@ class Player:
     def add_Shoot(self, board, coord):
 	
     def status(self):
-	    return self.__hit, self.__sink, self.__over
+        return self.__hit, self.__sink, self.__over
 	
     #Returns both player's boards
     #Remember to define these in init
