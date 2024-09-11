@@ -27,7 +27,7 @@ class Player:
         # ord returns the interger repersentation of the ascii character
         # 64 is the offset for the A character
         x = ord(coord[0]) - 64
-        y = int(coord[1])
+        y = int(coord[1]) - 1 # Convert 1-10 to 0-9
 
         return x,y
         
