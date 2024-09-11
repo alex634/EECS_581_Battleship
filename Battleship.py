@@ -6,11 +6,11 @@ class Player:
 
         #Sink, hit, and over variables update every turn
         #This is true if hit, false if miss
-        self.__hit = false
+        self.__hit = False
         #This is set to true if sunk, false if not
-        self.__sink = false
+        self.__sink = False
         #This is true if the game is over
-        self.__over = false
+        self.__over = False
 
         
     #Coordinates will be in a tuple of form (<uppercase letter>, <number>)
