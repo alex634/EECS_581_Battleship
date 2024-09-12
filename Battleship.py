@@ -1,3 +1,7 @@
+import re  # Import the regular expressions module for pattern matching.
+import os  # Import the operating system module for clearing the terminal.
+import time  # Import the time module for implementing delays.
+
 class Player:
     def __init__(self):
         #Board 1 and 2 will need to be initialized here
