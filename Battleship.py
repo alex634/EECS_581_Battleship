@@ -4,123 +4,90 @@ import time  # Import the time module for implementing delays.
 
 class Player:
     def __init__(self):
-        #Board 1 and 2 will need to be initialized here
-        self._board_One = [[0 for _ in range(10)] for _ in range(10)]  # Your own board (0 represents empty)
-        self._board_Two = [[0 for _ in range(10)] for _ in range(10)]  # Opponent's board (tracking board)
+        # Initialize a 10x10 board filled with zeros to represent empty cells.
+        self.board = [[0]*10 for _ in range(10)]  
+        # List to keep track of the ships placed by the player.
+        self.ships = []  
+        # Set to keep track of hit positions.
+        self.hits = set()  
+        # Set to keep track of miss positions.
+        self.misses = set()  
 
-        #Sink, hit, and over variables update every turn
-        #This is true if hit, false if miss
-        self.__hit = False
-        #This is set to true if sunk, false if not
-        self.__sink = False
-        #This is true if the game is over
-        self.__over = False
-
+    def place_ship(self, size, position, direction=None):
+        """Place a ship on the board."""
+        col, row = self.convert_position_to_indices(position)  # Convert the position to board indices.
         
-    #Coordinates will be in a tuple of form (<uppercase letter>, <number>)
-    #Returns true if out of bounds, false if not
-    #This does not check for existence of ships, just that the coordinate is valid
-    #Within the board space
-    def __bob(self, coord):
-        x, y = self.__str_coord_to_xy(coord)
-        return not (1 <= x <= 10 and 1 <= y <= 10)
+        if size == 1:
+            direction = 'H'  # For a 1x1 ship, direction is irrelevant.
 
-    # takes in a tuple (<uppercase letter>, <number>)
-    # returns interger repersentation of the coordinate in the XY plane
-    def __str_coord_to_xy(self, coord): 
-        # ord returns the interger repersentation of the ascii character
-        # 64 is the offset for the A character
-        x = ord(coord[0]) - 64
-        y = int(coord[1]) - 1 # Convert 1-10 to 0-9
-
-        return x,y
-        
-    #Sets a coordinate on the board to a specific value
-    #Point must be valid, no parameter checking should occur here
-    def __add_Point(self, board, coord, value):
-        x,y = self.__str_coord_to_xy(coord)
-        board[y][x] = value
-        
-    #Returns the value at a specific point on the board.
-    #Point must be valid, no parameter checking should occur here
-    def __get_Point(self, board, coord):
-        x,y = self.__str_coord_to_xy(coord)
-        return board[y][x]
-    	
-    #Steps:
-    #Make sure all locations the ship will exist along are valid using BOB
-    #Make sure the ship doesn't overlap with any other ship
-    #If this fails, raise an exception
-    def add_Ship(self, board, coord, size, downright):
-        # Convert coordinate to indices
-        x, y = self.__str_coord_to_xy(coord)
-
-        # Check if placing the ship would go out of bounds
-        if downright == 'H':  # Horizontal placement
-            # Ensure the ship fits horizontally within the board
-            if x + size - 1 > 10:
-                raise Exception(
-                    f"Ship placement exceeds board boundaries horizontally. Try placing the ship closer to the left.")
-            # Ensure no overlap with other ships
-            for i in range(size):
-                if self.__get_Point(board, (chr(ord(coord[0]) + i), coord[1])) != 0:
-                    raise Exception("Invalid ship placement or overlap detected")
-            # Place the ship
-            for i in range(size):
-                self.__add_Point(board, (chr(ord(coord[0]) + i), coord[1]), size)
-
-        elif downright == 'V':  # Vertical placement
-            # Ensure the ship fits vertically within the board
-            if y + size - 1 > 10:
-                raise Exception(
-                    f"Ship placement exceeds board boundaries vertically. Try placing the ship closer to the top.")
-            # Ensure no overlap with other ships
-            for i in range(size):
-                if self.__get_Point(board, (coord[0], str(int(coord[1]) + i))) != 0:
-                    raise Exception("Invalid ship placement or overlap detected")
-            # Place the ship
-            for i in range(size):
-                self.__add_Point(board, (coord[0], str(int(coord[1]) + i)), size)
-        else:
-            raise Exception("Invalid direction parameter, use 'H' or 'V'")
-
-    # Steps:
-    # Make sure point is a valid point using BOB
-    # Mark location on board
-    # Set hit, sink, over variables
-    # If this fails, raise an exception
-    def add_Shoot(self, board, coord):
-        # Validate the shooting point
-        if self.__bob(coord):
-            raise Exception("Shot out of bounds")
-
-        # Get the value at the shooting point
-        point = self.__get_Point(board, coord)
-        if point > 0:  # Hit a ship (positive value indicates a ship)
-            self.__hit = True
-            self.__add_Point(board, coord, -point)  # Mark as hit by setting the value to its negative counterpart
-            # Check if the ship is sunk
-            self.__sink = self.check_sunk(board, point)
-        elif point == 0:  # Missed
-            self.__hit = False
-            self.__add_Point(board, coord, -6)  # Mark as miss
-        else:
-            raise Exception("This position has already been attacked")
-
-
-    def check_sunk(self, board, ship_size):
-        for row in board:
-            if ship_size in row:  # If any part of the ship is still present (positive value), it's not sunk
+        if direction == 'H':
+            if col + size > 10:  # Check if the ship fits horizontally on the board.
                 return False
-        return True  # If no part of the ship is left, it's sunk
-	
-    def status(self):
-        return self.__hit, self.__sink, self.__over
-	
-    #Returns both player's boards
-    #Remember to define these in init
-    def get_Boards(self):
-        return self._board_One, self._board_Two
+            for i in range(size):
+                if col + i >= 10 or self.board[row][col + i] != 0:  # Check if the ship overlaps with existing ships.
+                    return False
+            for i in range(size):
+                self.board[row][col + i] = size  # Place the ship on the board horizontally.
+        elif direction == 'V':
+            if row + size > 10:  # Check if the ship fits vertically on the board.
+                return False
+            for i in range(size):
+                if row + i >= 10 or self.board[row + i][col] != 0:  # Check if the ship overlaps with existing ships.
+                    return False
+            for i in range(size):
+                self.board[row + i][col] = size  # Place the ship on the board vertically.
+        else:
+            return False  # Return False for invalid direction.
+
+        self.ships.append((position, size, direction))  # Add the ship details to the player's ships list.
+        return True
+
+    def receive_shot(self, position):
+        """Receive a shot on the board and return the result."""
+        col, row = self.convert_position_to_indices(position)  # Convert the shot position to board indices.
+        if self.board[row][col] != 0:
+            self.board[row][col] = 'X'  # Mark the shot as a hit on the board.
+            self.hits.add(position)  # Add the position to the hits set.
+            # Check if the ship is sunk by verifying if all its parts are hit.
+            if all(self.board[r][c] == 'X' for r in range(10) for c in range(10) if (self.board[r][c] == self.board[row][col])):
+                return 'Sunk'  # Return 'Sunk' if the entire ship is destroyed.
+            return 'Hit'  # Return 'Hit' if only part of the ship is hit.
+        else:
+            self.misses.add(position)  # Add the position to the misses set.
+            return 'Miss'  # Return 'Miss' if no ship is hit.
+
+    def print_board(self, reveal_ships=False):
+        """Print the board. If reveal_ships is True, show ships."""
+        # Print column labels from A to J.
+        print("  " + " ".join(chr(ord('A') + i) for i in range(10)))
+        for i in range(10):
+            # Print the row label and the data for each cell in the row.
+            row = str(i + 1) + " "
+            for j in range(10):
+                if reveal_ships:
+                    cell = self.board[i][j]
+                    if cell == 0:
+                        row += ". "  # Print a dot for empty cells.
+                    elif cell == 'X':
+                        row += "X "  # Print an 'X' for hit cells.
+                    else:
+                        row += f"{cell} "  # Print the ship size for ship cells.
+                else:
+                    position = chr(ord('A') + j) + str(i + 1)
+                    if position in self.hits:
+                        row += "X "  # Print an 'X' for hit positions.
+                    elif position in self.misses:
+                        row += "O "  # Print an 'O' for miss positions.
+                    else:
+                        row += ". "  # Print a dot for unexplored positions.
+            print(row)
+
+    def convert_position_to_indices(self, position):
+        """Convert board position from letter-number format to indices."""
+        col = ord(position[0]) - ord('A')  # Convert column letter to index (0-9).
+        row = int(position[1:]) - 1  # Convert row number to index (0-9).
+        return col, row  # Return the column and row indices.
+
 
 class Interface:
     def __init__(self):
