@@ -203,7 +203,6 @@ class Interface:
             position = input(f"Enter your shot (A-J, 1-10): ").upper()  # Prompt for the shot position.
             if re.match(r'^[A-J][1-9]|10$', position):
                 result = opponent.receive_shot(position)  # Process the shot and get the result.
-                self.record_shot_result(position, result)  # Record the result of the shot.
                 if result == 'Hit':
                     print("Hit!")  # Notify of a hit.
                 elif result == 'Miss':
@@ -213,14 +212,6 @@ class Interface:
                 return self.check_winner()  # Check for a winner after the shot.
             else:
                 print("Invalid input format or out of bounds. Please use format like A1, B2.")  # Notify of an invalid shot position.
-
-    def record_shot_result(self, position, result):
-        """Update the current player's board with the result of the opponent's shot."""
-        col, row = self.convert_position_to_indices(position)  # Convert position to board indices.
-        if result == 'Hit':
-            self.current_player.hits.add(position)  # Add hit position to the current player's hits set.
-        elif result == 'Miss':
-            self.current_player.misses.add(position)  # Add miss position to the current player's misses set.
 
     def get_ship_size_at(self, position):
         """Get the size of the ship at a specific position."""
