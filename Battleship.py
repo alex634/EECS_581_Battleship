@@ -107,7 +107,17 @@ class Interface:
     def setup_player(self, player, name):
         """Guide a player through placing their ships."""
         print(f"{name}, place your ships.")  # Prompt the player to place ships.
-        num_ships = self.get_number_of_ships()  # Get the number of ships to place.
+        
+        # Check if the current player is Player 1
+        if player == self.player1:
+            num_ships = self.get_number_of_ships()  # Get the number of ships to place.
+            self.num_ships_to_place = num_ships  # Store this value for Player 2 to use later.
+        else:
+            num_ships = self.num_ships_to_place  # Player 2 places the same number of ships.
+        
+        # Inform the player how many ships they will be placing
+        print(f"{name}, you will be placing {num_ships} ships.")
+
         for size in range(1, num_ships + 1):
             self.place_ship(player, size)  # Place each ship on the board.
         self.clear_terminal_with_countdown()  # Clear the terminal after ship placement.
@@ -126,6 +136,7 @@ class Interface:
 
     def place_ship(self, player, size):
         """Guide the player through placing a single ship on their board."""
+        player.print_board(reveal_ships=True)  # Show the player's board after placing the ship.
         print(f"Placing your {size}x{size} ship:")  # Prompt the player to place a ship of given size.
         while True:
             position = input(f"Enter the position (A-J, 1-10) for your {size}x{size} ship: ").upper()  # Prompt for ship position.
@@ -136,6 +147,7 @@ class Interface:
             
             if re.match(r'^[A-J][1-9]|10$', position) and (direction in ('H', 'V') or direction is None):
                 if player.place_ship(size, position, direction):
+                    player.print_board(reveal_ships=True)  # Show the player's board after placing the ship.
                     break  # Break the loop if the ship is placed successfully.
                 else:
                     print(f"Error placing {size}x{size} ship: Check ship placement rules and try again.")  # Notify of placement error.
