@@ -45,6 +45,11 @@ class Player:
     def receive_shot(self, position):
         """Receive a shot on the board and return the result."""
         col, row = self.convert_position_to_indices(position)  # Convert the shot position to board indices.
+        
+        # Check if the shot has already been made
+        if position in self.hits or position in self.misses:
+            return 'Already Shot'  # Notify that the position has already been shot at
+        
         cell_Value = self.board[row][col]
 
         if cell_Value != 0 and position not in self.hits:
@@ -217,6 +222,11 @@ class Interface:
             position = input(f"Enter your shot (A-J, 1-10): ").strip().upper()  # Prompt for the shot position.
             if re.match(r'^[A-J](?:[1-9]|10)$', position):
                 result = opponent.receive_shot(position)  # Process the shot and get the result.
+                
+                if result == 'Already Shot':
+                    print("You've already shot at this position. Try again.")  # Notify of repeated shot.
+                    continue  # Continue asking for a valid shot.
+                
                 if result == 'Hit':
                     print("Hit!")  # Notify of a hit.
                 elif result == 'Miss':
