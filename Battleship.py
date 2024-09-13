@@ -240,7 +240,11 @@ class Interface:
 
     def check_winner(self):
         """Check if the game has a winner."""
-        if not any(ship for ship in self.opponent.ships if ship[0] not in self.opponent.hits):
+        # Calculate the total number of ship cells based on placed ships.
+        total_ship_cells = sum(size for _, size, _ in self.opponent.ships)
+
+        # Compare the number of unique hits to the total number of ship cells.
+        if len(self.opponent.hits) == total_ship_cells:
             print(f"{self.get_current_player_name()} wins!")  # Announce the winner.
             return True  # Return True to indicate the game is won.
         return False  # Return False if no winner yet.
