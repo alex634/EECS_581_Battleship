@@ -59,10 +59,14 @@ class Player:
     def print_board(self, reveal_ships=False):
         """Print the board. If reveal_ships is True, show ships."""
         # Print column labels from A to J.
-        print("  " + " ".join(chr(ord('A') + i) for i in range(10)))
+        print("   " + " ".join(chr(ord('A') + i) for i in range(10)))
         for i in range(10):
             # Print the row label and the data for each cell in the row.
-            row = str(i + 1) + " "
+            row_index = i + 1
+            if row_index < 10:
+                row = str(i + 1) + "  "
+            else:
+                row = str(i + 1) + " "
             for j in range(10):
                 if reveal_ships:
                     cell = self.board[i][j]
@@ -81,6 +85,7 @@ class Player:
                     else:
                         row += ". "  # Print a dot for unexplored positions.
             print(row)
+        print()
 
     def convert_position_to_indices(self, position):
         """Convert board position from letter-number format to indices."""
@@ -99,24 +104,32 @@ class Interface:
 
     def start(self):
         """Start the game by setting up players and beginning gameplay."""
-        print("Welcome to Battleship!")  # Greet the players.
+        print("+====================================+")
+        print("|       Welcome to Battleship!       |")  # Greet the players.
+        print("+====================================+")
+        print()
         self.setup_player(self.player1, "Player 1")  # Setup Player 1's board.
         self.setup_player(self.player2, "Player 2")  # Setup Player 2's board.
         self.play_game()  # Start the game loop.
 
     def setup_player(self, player, name):
         """Guide a player through placing their ships."""
-        print(f"{name}, place your ships.")  # Prompt the player to place ships.
+        #print(f"{name}, place your ships.")  # Prompt the player to place ships.
         
         # Check if the current player is Player 1
         if player == self.player1:
+            print(f"{name}, place your ships.") # promt the player to place ships.
             num_ships = self.get_number_of_ships()  # Get the number of ships to place.
             self.num_ships_to_place = num_ships  # Store this value for Player 2 to use later.
         else:
             num_ships = self.num_ships_to_place  # Player 2 places the same number of ships.
         
         # Inform the player how many ships they will be placing
-        print(f"{name}, you will be placing {num_ships} ships.")
+        print("+=========================================+")
+        print(f"|  {name}, you will be placing {num_ships} ships. |")
+        print("+=========================================+")
+
+        print()
 
         for size in range(1, num_ships + 1):
             self.place_ship(player, size)  # Place each ship on the board.
@@ -127,6 +140,7 @@ class Interface:
         while True:
             try:
                 num_ships = int(input("How many different ships would you like to place (1-5)? "))  # Prompt for the number of ships.
+                print()
                 if 1 <= num_ships <= 5:
                     return num_ships  # Return the valid number of ships.
                 else:
@@ -136,8 +150,9 @@ class Interface:
 
     def place_ship(self, player, size):
         """Guide the player through placing a single ship on their board."""
+        print()
         player.print_board(reveal_ships=True)  # Show the player's board after placing the ship.
-        print(f"Placing your {size}x{size} ship:")  # Prompt the player to place a ship of given size.
+        print(f"Placing your 1x{size} ship:")  # Prompt the player to place a ship of given size.
         while True:
             position = input(f"Enter the position (A-J, 1-10) for your {size}x{size} ship: ").upper()  # Prompt for ship position.
             if size > 1:
@@ -147,6 +162,7 @@ class Interface:
             
             if re.match(r'^[A-J][1-9]|10$', position) and (direction in ('H', 'V') or direction is None):
                 if player.place_ship(size, position, direction):
+                    print()
                     player.print_board(reveal_ships=True)  # Show the player's board after placing the ship.
                     break  # Break the loop if the ship is placed successfully.
                 else:
@@ -169,9 +185,16 @@ class Interface:
 
     def print_boards(self):
         """Print both the current player's and the opponent's boards."""
+        print()
+        print("+======================+")
         print(f"\n{self.get_current_player_name()}'s board:")  # Print the current player's board.
-        self.current_player.print_board(reveal_ships=True)  
-        print("\nOpponent's board:")  # Print the opponent's board.
+        print("+======================+")
+        self.current_player.print_board(reveal_ships=True)
+
+        print()
+        print("+======================+")
+        print("|  Opponent's board:   |")  # Print the opponent's board.
+        print("+======================+")
         self.opponent.print_board()  
 
     def take_shot(self, opponent):
@@ -232,7 +255,8 @@ class Interface:
             time.sleep(1)  # Wait for 1 second.
         os.system('cls' if os.name == 'nt' else 'clear')  # Clear the terminal based on the operating system.
         input("\nPress Enter to continue to the next player's turn...")  # Pause for user input to continue.
-        print("\n" + "="*40)  # Print a separator line for clarity.
+        print()
+        # print("\n" + "="*40)  # Print a separator line for clarity.
 
     def convert_position_to_indices(self, position):
         """Convert board position from letter-number format to indices."""
