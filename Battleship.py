@@ -45,16 +45,26 @@ class Player:
     def receive_shot(self, position):
         """Receive a shot on the board and return the result."""
         col, row = self.convert_position_to_indices(position)  # Convert the shot position to board indices.
-        if self.board[row][col] != 0:
-            self.board[row][col] = 'X'  # Mark the shot as a hit on the board.
-            self.hits.add(position)  # Add the position to the hits set.
-            # Check if the ship is sunk by verifying if all its parts are hit.
-            if all(self.board[r][c] == 'X' for r in range(10) for c in range(10) if (self.board[r][c] == self.board[row][col])):
-                return 'Sunk'  # Return 'Sunk' if the entire ship is destroyed.
-            return 'Hit'  # Return 'Hit' if only part of the ship is hit.
+        cell_Value = self.board[row][col]
+
+        if cell_Value != 0 and position not in self.hits:
+            self.hits.add(position)
+            
+            sunk = True
+
+            for i in range(10):
+                for j in range(10):
+                    if self.board[i][j] == cell_Value:
+                        if ( str( chr(j + ord("A")) ) + str(i+1) ) not in self.hits:
+                            sunk = False
+            if sunk:
+                return 'Sunk'
+            else:
+                return 'Hit'
         else:
-            self.misses.add(position)  # Add the position to the misses set.
-            return 'Miss'  # Return 'Miss' if no ship is hit.
+            self.misses.add(position)
+            return 'Miss'
+
 
     def print_board(self, reveal_ships=False):
         """Print the board. If reveal_ships is True, show ships."""
@@ -69,13 +79,17 @@ class Player:
                 row = str(i + 1) + " "
             for j in range(10):
                 if reveal_ships:
+                    position = chr(ord('A') + j) + str(i + 1)
                     cell = self.board[i][j]
-                    if cell == 0:
-                        row += ". "  # Print a dot for empty cells.
-                    elif cell == 'X':
-                        row += "X "  # Print an 'X' for hit cells.
+                    if position in self.hits:
+                        row += "X "  # Print an 'X' for hit positions.
+                    elif position in self.misses:
+                        row += "O "  # Print an 'O' for miss positions.
                     else:
-                        row += f"{cell} "  # Print the ship size for ship cells.
+                        if cell == 0:
+                            row += ". "  # Print a dot for unexplored positions.
+                        else:
+                            row += str(cell) + " "
                 else:
                     position = chr(ord('A') + j) + str(i + 1)
                     if position in self.hits:
@@ -154,13 +168,13 @@ class Interface:
         player.print_board(reveal_ships=True)  # Show the player's board after placing the ship.
         print(f"Placing your 1x{size} ship:")  # Prompt the player to place a ship of given size.
         while True:
-            position = input(f"Enter the position (A-J, 1-10) for your {size}x{size} ship: ").upper()  # Prompt for ship position.
+            position = input(f"Enter the position (A-J, 1-10) for your {size}x{size} ship: ").strip().upper()  # Prompt for ship position.
             if size > 1:
-                direction = input("Enter direction (H for horizontal, V for vertical): ").upper()  # Prompt for ship direction if size > 1.
+                direction = input("Enter direction (H for horizontal, V for vertical): ").strip().upper()  # Prompt for ship direction if size > 1.
             else:
                 direction = None  # No need for direction if the ship size is 1x1.
             
-            if re.match(r'^[A-J][1-9]|10$', position) and (direction in ('H', 'V') or direction is None):
+            if re.match(r'^[A-J](?:[1-9]|10)$', position) and (direction in ('H', 'V') or direction is None):
                 if player.place_ship(size, position, direction):
                     print()
                     player.print_board(reveal_ships=True)  # Show the player's board after placing the ship.
@@ -168,7 +182,7 @@ class Interface:
                 else:
                     print(f"Error placing {size}x{size} ship: Check ship placement rules and try again.")  # Notify of placement error.
             else:
-                if not re.match(r'^[A-J][1-9]|10$', position):
+                if not re.match(r'^[A-J](?:[1-9]|10)$', position):
                     print(f"Invalid position format. Please use format like A1, B2 for your {size}x{size} ship.")  # Notify of position format error.
                 if size > 1 and direction not in ('H', 'V'):
                     print(f"Invalid direction. Please enter 'H' for horizontal or 'V' for vertical for your {size}x{size} ship.")  # Notify of direction error.
@@ -200,8 +214,8 @@ class Interface:
     def take_shot(self, opponent):
         """Handle a shot taken by the current player at the opponent's board."""
         while True:
-            position = input(f"Enter your shot (A-J, 1-10): ").upper()  # Prompt for the shot position.
-            if re.match(r'^[A-J][1-9]|10$', position):
+            position = input(f"Enter your shot (A-J, 1-10): ").strip().upper()  # Prompt for the shot position.
+            if re.match(r'^[A-J](?:[1-9]|10)$', position):
                 result = opponent.receive_shot(position)  # Process the shot and get the result.
                 if result == 'Hit':
                     print("Hit!")  # Notify of a hit.
@@ -258,4 +272,3 @@ class Interface:
 if __name__ == "__main__":
     game = Interface()  # Create an instance of the Interface class.
     game.start()  # Start the game.
-
