@@ -1,4 +1,4 @@
-import re  # Import the regular expressions module for pattern matching.
+import re  # Import the regular expressions module for pattern matching Logic based on chatgpt query and research due to the first time implementing regular expression logic.
 import os  # Import the operating system module for clearing the terminal.
 import time  # Import the time module for implementing delays.
 
@@ -179,7 +179,7 @@ class Interface:
             else:
                 direction = None  # No need for direction if the ship size is 1x1.
             
-            if re.match(r'^[A-J](?:[1-9]|10)$', position) and (direction in ('H', 'V') or direction is None):
+            if re.match(r'^[A-J](?:[1-9]|10)$', position) and (direction in ('H', 'V') or direction is None): # Regular expression Logic based on chatgpt query and research due to first time implementing regular expression logic.
                 if player.place_ship(size, position, direction):
                     print()
                     player.print_board(reveal_ships=True)  # Show the player's board after placing the ship.
@@ -187,7 +187,7 @@ class Interface:
                 else:
                     print(f"Error placing {size}x{size} ship: Check ship placement rules and try again.")  # Notify of placement error.
             else:
-                if not re.match(r'^[A-J](?:[1-9]|10)$', position):
+                if not re.match(r'^[A-J](?:[1-9]|10)$', position): # Regular expression Logic based on chatgpt query and research due to first time implementing regular expression logic.
                     print(f"Invalid position format. Please use format like A1, B2 for your {size}x{size} ship.")  # Notify of position format error.
                 if size > 1 and direction not in ('H', 'V'):
                     print(f"Invalid direction. Please enter 'H' for horizontal or 'V' for vertical for your {size}x{size} ship.")  # Notify of direction error.
@@ -220,7 +220,7 @@ class Interface:
         """Handle a shot taken by the current player at the opponent's board."""
         while True:
             position = input(f"Enter your shot (A-J, 1-10): ").strip().upper()  # Prompt for the shot position.
-            if re.match(r'^[A-J](?:[1-9]|10)$', position):
+            if re.match(r'^[A-J](?:[1-9]|10)$', position): # Regular expression Logic based on chatgpt query and research due to first time implementing regular expression logic.
                 result = opponent.receive_shot(position)  # Process the shot and get the result.
                 
                 if result == 'Already Shot':
